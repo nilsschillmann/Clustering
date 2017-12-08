@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem fx:id="menuOpen" mnemonicParsing="false" onAction="#open" text="Öffnen" />
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <HBox prefWidth="200.0" spacing="5.0">
+         <children>
+            <Label alignment="CENTER" prefHeight="24.0" text="Algorithmus">
+               <HBox.margin>
+                  <Insets left="5.0" />
+               </HBox.margin></Label>
+            <ChoiceBox fx:id="choiceBoxAlgorithm" prefWidth="150.0" />
+            <ToggleButton fx:id="imageSwitch" mnemonicParsing="false" onAction="#switchImage" text="Original" />
+            <Spinner fx:id="numberOfClusters" styleClass="split-arrows-horizontal" />
+            <Button fx:id="btnRun" mnemonicParsing="false" onAction="#runAlgorithm" text="Start" />
+         </children>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+      </HBox>
+      <ScrollPane fx:id="scrollPane" pannable="true" VBox.vgrow="NEVER">
+         <content>
+            <ImageView fx:id="imageView" cacheHint="SCALE" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../image/image.jpg" />
+               </image>
+            </ImageView>
+         </content>
+         <cursor>
+            <Cursor fx:constant="DEFAULT" />
+         </cursor>
+      </ScrollPane>
+   </children>
+</VBox>
