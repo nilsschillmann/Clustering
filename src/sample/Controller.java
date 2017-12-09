@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -101,7 +102,7 @@ public class Controller implements Initializable{
 		minPts.setEditable(true);
 
 		try {
-			originalImage = new Image(new FileInputStream("C:\\Users\\Nils\\IdeaProjects\\Clustering\\out\\production\\Clustering\\image\\image.jpg"));
+			originalImage = new Image(new FileInputStream("out/image/image.jpg"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 
