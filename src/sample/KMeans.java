@@ -7,14 +7,21 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+
 abstract class KMeans {
 
+	/**
+	 * Findet alle Cluster einer Pixelliste nach dem k-Means Verfahren bezüglich des RGB Farbraums.
+	 * @param data Liste von Pixeln die geclustert werden sollen.
+	 * @param k Anzahl der zu findenden Cluster
+	 * @return Liste von Clustern.
+	 */
 	static List<Cluster> cluster(List<Pixel> data, int k){
-		// Anlegen der leeren Kluster.
-		List<Cluster> clusters;
+		// Anlegen der leeren Cluster.
+		List<Cluster> clusters = new ArrayList<>(k);
 		List<Cluster> oldClusters;
-		clusters = new ArrayList<>(k);
 
+		// Die grundmenge wird durchmischt damit zufällige startwerte gewählt werden.
 		Collections.shuffle(data);
 
 		// zufällige cluster anlegen
@@ -22,13 +29,14 @@ abstract class KMeans {
 			clusters.add(new Cluster( data.get(i).getColor(), new LinkedList<>()));
 		}
 
-		int runs = 0;
-		boolean done;
-		long before = System.currentTimeMillis();
+		int runs = 0; // zählt die Durchläufe
+		boolean done; // Abbruchvariable
+		long before = System.currentTimeMillis();  // zum messen der Zeit pro Durchlauf.
 
 		do {
-			oldClusters = new ArrayList<>();
 
+			// Lege eine Kopie der Bissher erstellten Cluster an und leere die bissherigen. Die Zentruide bleiben dabei erhalten.
+			oldClusters = new ArrayList<>();
 			for (Cluster cl: clusters) {
 				oldClusters.add(cl.copy());
 				cl.vectors = new LinkedList<>();
@@ -38,13 +46,17 @@ abstract class KMeans {
 			for (Pixel pixel : data) {
 				int whichCluster = 0;
 				for (int i = 1; i < k; i++) {
+					// prüge für jedes Pixel zu welchem CLuster es passt.
 					if (isCloser(pixel.getColor(), clusters.get(i).centroid, clusters.get(whichCluster).centroid)) {
 						whichCluster = i;
 					}
 				}
+				// zuordnung
 				clusters.get(whichCluster).vectors.add(pixel);
 			}
 
+
+			// andere variante zum zuordnen der Cluster
 //			int whichCluster;
 //			double newDist;
 //			for (Pixel pixel : data) {
@@ -59,9 +71,10 @@ abstract class KMeans {
 //				}
 //				cluster.get(whichCluster).vectors.add(pixel);
 //			}
-			done = true;
 
+			done = true;
 			// Zentruide anpassen
+			// wenn sich die Zentruide nicht geändert haben wir abgebrochen
 			for (int i =0; i<clusters.size(); i++) {
 				clusters.get(i).calibrateCentroids();
 				if (!clusters.get(i).centroid.equals(oldClusters.get(i).centroid)){
@@ -81,6 +94,13 @@ abstract class KMeans {
 		return clusters;
 	}
 
+	/**
+	 * Prüft ob a näher an x liegt als b.
+	 * @param x Bezugspunkt für die Abstandsmessung
+	 * @param a
+	 * @param b
+	 * @return true wenn a näher an x als b
+	 */
 	private static boolean isCloser(Color x, Color a, Color b){
 		double first = (Math.pow(x.getRed()   - a.getRed() , 2) +
 						Math.pow(x.getGreen() - a.getGreen() , 2) +
@@ -93,6 +113,12 @@ abstract class KMeans {
 		return first < second;
 	}
 
+	/**
+	 * Gibt die euklidische Distanz zwischen a und b zurück.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	private static double dist(double[] a, double[] b){
 		if (a.length != b.length){
 			throw new IllegalArgumentException("Vector a und Vector b muessen die gleiche Dimension haben.");
@@ -106,6 +132,13 @@ abstract class KMeans {
 		return dist;
 	}
 
+	/**
+	 * Prüft ob a näher an x liegt als b.
+	 * @param x Bezugspunkt für die Abstandsmessung
+	 * @param a
+	 * @param b
+	 * @return true wenn a näher an x als b
+	 */
 	private static double isCloser2(double dist, Color a, Color b){
 		double newDist = 0;
 		newDist += Math.abs(a.getRed() - b.getRed());
@@ -123,12 +156,17 @@ abstract class KMeans {
 		return newDist;
 	}
 
+
 	private static double dist2(Color a, Color b){
 		return (Math.abs(a.getRed()   - b.getRed()) +
 				Math.abs(a.getGreen() - b.getGreen()) +
 				Math.abs(a.getBlue()  - b.getBlue()));
 	}
 
+	/**
+	 * Cluster die beim k-Means Algorithmus entstehen.
+	 * Jedes Cluster besteht aus einer Farbe als Zentruid und einer Liste von Pixeln die den Inhalt des Clusters darstellen.
+	 */
 	static class Cluster{
 		Color centroid;
 		List<Pixel> vectors;
@@ -142,6 +180,10 @@ abstract class KMeans {
 			return new Cluster(this.centroid, this.vectors);
 		}
 
+		/**
+		 * Anpassen der Zentruide.
+		 * Rückt den Zentruiden in den "Mittelpunkt" des Clusters.
+		 */
 		void calibrateCentroids(){
 			double red = 0;
 			double green = 0;

@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -23,18 +24,20 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable{
 
-	private ObservableList<String> algorithmList = FXCollections.observableArrayList("K-Means", "DB Scan");
 	Image originalImage;
 	WritableImage clusteredImage;
-
 	final DoubleProperty zoomProperty = new SimpleDoubleProperty(1);
 
 	 @FXML
 	private VBox root;
 
+	@FXML
+	private ChoiceBox<String> choiceBoxAlgorithm;
+	private ObservableList<String> algorithmList = FXCollections.observableArrayList("K-Means", "DB Scan");
 
 	@FXML
-	private ChoiceBox choiceBoxAlgorithm;
+	private ChoiceBox<String> CBdistance;
+	private ObservableList<String> distances = FXCollections.observableArrayList("Euklidisch", "Max");
 
 	@FXML
 	private ImageView imageView;
@@ -50,8 +53,18 @@ public class Controller implements Initializable{
 
 	@FXML
 	private Spinner<Integer> numberOfClusters;
-	private SpinnerValueFactory<Integer> spinnerValueFactory =
+	private SpinnerValueFactory<Integer> NOCspinnerValueFactory =
 			new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 50, 3);
+
+	@FXML
+	private Spinner<Integer> minPts;
+	private SpinnerValueFactory<Integer> minPtsSpinnerValueFactory =
+			new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3);
+
+	@FXML
+	private Spinner<Integer> epsilon;
+	private SpinnerValueFactory<Integer> epsilonSpinnerValueFactory =
+			new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3);
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -72,16 +85,27 @@ public class Controller implements Initializable{
 			}
 		});
 
-		choiceBoxAlgorithm.setValue("K-Means");
+		choiceBoxAlgorithm.setValue("DB Scan");
 		choiceBoxAlgorithm.setItems(algorithmList);
 
-		numberOfClusters.setValueFactory(spinnerValueFactory);
+		CBdistance.setValue("Euklidisch");
+		CBdistance.setItems(distances);
+
+		numberOfClusters.setValueFactory(NOCspinnerValueFactory);
 		numberOfClusters.setEditable(true);
 
+		epsilon.setValueFactory(epsilonSpinnerValueFactory);
+		epsilon.setEditable(true);
+
+		minPts.setValueFactory(minPtsSpinnerValueFactory);
+		minPts.setEditable(true);
+
 		try {
-			originalImage = new Image(new FileInputStream("out/production/fxtest/image/image.jpg"));
+			originalImage = new Image(new FileInputStream("C:\\Users\\Nils\\IdeaProjects\\Clustering\\out\\production\\Clustering\\image\\image.jpg"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+
+
 		}
 	}
 
@@ -122,12 +146,15 @@ public class Controller implements Initializable{
 			}
 		}
 
-		List<KMeans.Cluster> cluster = KMeans.cluster(pixels, numberOfClusters.getValue());
-		for (KMeans.Cluster cl: cluster) {
-			for (Pixel pixel: cl.vectors) {
-				writer.setColor(pixel.getLocation()[0], pixel.getLocation()[1], cl.centroid);
-			}
+		if (choiceBoxAlgorithm.getValue().toString() == "K-Means"){
+			clusterWithKMeans(pixels, numberOfClusters.getValue(), writer);
 		}
+
+		if (choiceBoxAlgorithm.getValue().toString() == "DB Scan"){
+			clusterWithDBScan(pixels, epsilon.getValue(), minPts.getValue(), writer);
+		}
+
+
 
 		imageView.setImage(clusteredImage);
 		if (!imageSwitch.isSelected()){
@@ -137,12 +164,41 @@ public class Controller implements Initializable{
 
 	}
 
+	private void clusterWithKMeans(List<Pixel> pixels, int k, PixelWriter writer){
+		List<KMeans.Cluster> cluster = KMeans.cluster(pixels, k);
+		for (KMeans.Cluster cl: cluster) {
+			for (Pixel pixel: cl.vectors) {
+				writer.setColor(pixel.getLocation()[0], pixel.getLocation()[1], cl.centroid);
+			}
+		}
+	}
+
+	private void clusterWithDBScan(List<Pixel> pixels, double epsilon, int minPts, PixelWriter writer){
+
+		DBScan.DBScanResult result = DBScan.cluster(pixels, epsilon, minPts, CBdistance.getValue());
+		List<DBScan.DBScanObject> objects = result.objects;
+		List<Color> colors = new ArrayList<>();
+
+		colors.add(new Color(1, 1, 1, 1));
+		for (int i = 1; i < result.numberOfClusters; i++) {
+			colors.add(generateRandomColor());
+		}
+		for (DBScan.DBScanObject object: objects){
+			writer.setColor(object.pixel.getLocation()[0], object.pixel.getLocation()[1], colors.get(object.clusterID));
+		}
+	}
+
+	private Color generateRandomColor(){
+		return new Color(Math.random(), Math.random(), Math.random(), 1);
+	}
+
 	@FXML
 	private void open(){
 		FileChooser fileChooser = new FileChooser();
 
 		fileChooser.setInitialDirectory(
-				new File(System.getProperty("user.home") + "/Pictures/Saved Pictures")
+				//new File("out/production/Clustering/image")
+				new File(System.getProperty("user.home"))
 		);
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("All Images", "*.jpg", "*.img", "*.png"),

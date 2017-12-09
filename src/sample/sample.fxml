@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+<VBox fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="308.0" prefWidth="1000.0" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <children>
       <MenuBar>
         <menus>
@@ -44,9 +44,16 @@
                <HBox.margin>
                   <Insets left="5.0" />
                </HBox.margin></Label>
-            <ChoiceBox fx:id="choiceBoxAlgorithm" prefWidth="150.0" />
+            <ChoiceBox fx:id="choiceBoxAlgorithm" prefWidth="100.0" />
             <ToggleButton fx:id="imageSwitch" mnemonicParsing="false" onAction="#switchImage" text="Original" />
-            <Spinner fx:id="numberOfClusters" styleClass="split-arrows-horizontal" />
+            <Label text="k" />
+            <Spinner fx:id="numberOfClusters" minWidth="100.0" prefHeight="31.0" prefWidth="100.0" />
+            <Label text="epsilon" />
+            <Spinner fx:id="epsilon" minWidth="100.0" prefWidth="100.0" />
+            <Label text="MinPts" />
+            <Spinner fx:id="minPts" minWidth="100.0" prefWidth="100.0" />
+            <Label text="Distanzmaß" />
+            <ChoiceBox fx:id="CBdistance" prefWidth="100.0" />
             <Button fx:id="btnRun" mnemonicParsing="false" onAction="#runAlgorithm" text="Start" />
          </children>
          <VBox.margin>
